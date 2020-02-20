@@ -1,14 +1,18 @@
 import React from "react";
 import { withFormik, Form, Field } from "formik";
+import * as Yup from "yup";
 
-const UserForm = ({ values }) => {
+const UserForm = ({ values, errors, touched }) => {
     return (
         <Form>
             <Field type="text" name="name" placeholder="Enter name" />
+            {touched.name && errors.name && <div>{errors.name}</div>}
             <br/>
             <Field type="email" name="email" placeholder="Email address" />
+            {touched.email && errors.email && <div>{errors.email}</div>}
             <br/>
             <Field type="password" name="password" placeholder="Password" />
+            {touched.password && errors.password && <div>{errors.password}</div>}
             <br/>
             <label>
                 I Accept the Terms of Service
@@ -18,6 +22,7 @@ const UserForm = ({ values }) => {
                     checked={values.tos}
                 />
             </label>
+            {touched.tos && errors.tos && <div>{errors.tos}</div>}
             <br/>
             <button type="submit">Submit</button>
         </Form>
@@ -32,7 +37,21 @@ const FormikUserForm = withFormik({
             password: password || "",
             tos: tos || false
         };
-    }
+    },
+    validationSchema: Yup.object().shape({
+        name: Yup.string()
+            .required("You must enter a name")
+            .min(3, "Name too short"),
+        email: Yup.string()
+            .required("You must enter an email address")
+            .email("Not a valid email address"),
+        password: Yup.string()
+            .required("You must enter a password")
+            .min(6, "Password must be at least 6 characters"),
+        tos: Yup.boolean()
+            .required('You must accept the TOS')
+            .oneOf([true], 'You must accept the TOS')
+    })
 })(UserForm);
 
 export default FormikUserForm;
